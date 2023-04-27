@@ -1,0 +1,88 @@
+{
+    "id": 123,
+   
+
+    "MCSample" : {
+        "ZGToLLG_UL2016preVFP": {
+            "production": ["ZGToLLG"],
+            "lumi": [19.52],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_preVFP/"]
+        },
+        "ZGToLLG_UL2016postVFP": {
+            "production": ["ZGToLLG"],
+            "lumi": [16.81],          
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_postVFP/"]
+        },
+        "ZGToLLG_UL2017": {
+            "production": ["ZGToLLG"],
+            "lumi": [41.48],  
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL17_Zg_aMCatNLO/"]
+        },
+        "ZGToLLG_UL2018": {
+            "production": ["ZGToLLG"],
+            "lumi": [59.82],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL18_Zg_aMCatNLO/ggtree_mc_*.root"]
+        },
+
+        "DYJets_UL2016preVFP": {
+            "production": ["DYJets"],
+            "lumi": [19.52],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_preVFP/"]
+        },
+        "DYJets_UL2016postVFP": {
+            "production": ["DYJets"],
+            "lumi": [16.81],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_postVFP/"]
+        },
+        "DYJets_UL2017": {
+            "production": ["DYJets"],
+            "lumi": [41.48],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL17_DYJetsToLL_m50_aMCatNLO/"]
+        },
+        "DYJets_UL2018": {
+            "production": ["DYJets"],
+            "lumi": [59.82],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL18_DYJetsToLL_m50_aMCatNLO/"]
+        },
+        "HToZG_UL2016preVFP": {
+            "production": ["HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
+            "lumi": [19.52],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_preVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_preVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_preVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_preVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_preVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_preVFP/ggtree_mc_*.root"]
+        },
+        "HToZG_UL2016postVFP": {
+            "production": ["HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
+            "lumi": [16.81],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_postVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_postVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_postVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_postVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_postVFP/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_postVFP/ggtree_mc_*.root"]
+        },
+        "HToZG_UL2017": {
+            "production": ["HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
+            "lumi": [41.48],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ggF_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_VBF_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ZH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WminusH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WplusH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ttH_125GeV/ggtree_mc_*.root"]
+        },
+        "HToZG_UL2018": {
+            "production": ["HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
+            "lumi": [59.82],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ggF_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_VBF_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ZH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WminusH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WplusH_125GeV/ggtree_mc_*.root",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ttH_125GeV/ggtree_mc_*.root"]
+        }
+    }
+}
