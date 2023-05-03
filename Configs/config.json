@@ -1,0 +1,86 @@
+{
+    "id": 123,
+    "debug" : true,
+    "flatten" : false,
+    "tree_path" : "ggNtuplizer/EventTree",
+    "Classes" : ["ZGToLLG", "DYJets","HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
+    "branches":{
+        "common":[
+            "run","nVtx","puTrue","rho","event",
+            "nLHE","lhePx","lhePy","lhePz","lheE","lhePID",
+            "nMC","mcPt","mcE","mcEta","mcPhi","mcPID","mcMomPID","mcGMomPID","mcStatusFlag",
+            "nPho","phoEta","phoPhi","phoCalibEt","phoSCRawE",
+            "phoESEnP1","phoESEnP2","phoSCEta","phoSCEtaWidth","phoSCPhiWidth",
+            "phoEleVeto",
+            "phoR9","phoHoverE","phoESEffSigmaRR",
+            "phoSigmaIEtaIEtaFull5x5","phoSigmaIEtaIPhiFull5x5",
+            "phoE2x2Full5x5","phoE5x5Full5x5","phoR9Full5x5",
+            "phoPFChIso","phoPFPhoIso","phoPFChWorstIso",
+            "phoIDMVA",
+
+            "nEle",
+            "eleCalibPt","eleEta","elePhi","eleCharge",
+            
+            "nMu","muPt","muEta","muPhi","muCharge","muType","muTrkLayers"
+        ],   
+        "UL_only": [
+            "phoEcalPFClusterIso",
+            "phoHcalPFClusterIso",
+            "phoConeHoverE"
+        ]
+    },
+  
+    "MCSample" : {
+        "ZGToLLG": {
+            "production": ["ZGToLLG"],
+            "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
+            "lumi": [19.52, 16.81, 41.48, 59.82],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_Zg_aMCatNLO/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_Zg_aMCatNLO/"]
+        },        
+        "DYJets": {
+            "production": ["DYJets"],
+            "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
+            "lumi": [19.52, 16.81, 41.48, 59.82],
+            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_DYJetsToLL_m50_aMCatNLO/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_DYJetsToLL_m50_aMCatNLO/"]
+        },
+        "HToZG": {
+            "production": ["ggF", "VBF", "ZH", "WminusH", "WplusH", "ttH"],
+            "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
+            "lumi": [19.52, 16.81, 41.48, 59.82],
+            "path": [["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_preVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_preVFP/"],
+
+                    ["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_postVFP/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_postVFP/"],
+
+                    ["/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ggF_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_VBF_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ZH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WminusH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WplusH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ttH_125GeV/"],
+
+                    ["/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ggF_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_VBF_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ZH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WminusH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WplusH_125GeV/",
+                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ttH_125GeV/"]
+                ]
+        }
+    }
+}
