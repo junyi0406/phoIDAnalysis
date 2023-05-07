@@ -1,85 +1,92 @@
 {
     "id": 123,
-    "debug" : true,
+    "debug" : false,
     "flatten" : false,
-    "tree_path" : "ggNtuplizer/EventTree",
+    "tree_path" : "miniTree",
     "Classes" : ["ZGToLLG", "DYJets","HToZG_ggF", "HToZG_VBF", "HToZG_ZH", "HToZG_WminusH", "HToZG_WplusH", "HToZG_ttH"],
     "branches":{
-        "common":[
-            "run","nVtx","puTrue","rho","event",
-            "nLHE","lhePx","lhePy","lhePz","lheE","lhePID",
-            "nMC","mcPt","mcE","mcEta","mcPhi","mcPID","mcMomPID","mcGMomPID","mcStatusFlag",
-            "nPho","phoEta","phoPhi","phoCalibEt","phoSCRawE",
-            "phoESEnP1","phoESEnP2","phoSCEta","phoSCEtaWidth","phoSCPhiWidth",
-            "phoEleVeto",
-            "phoR9","phoHoverE","phoESEffSigmaRR",
-            "phoSigmaIEtaIEtaFull5x5","phoSigmaIEtaIPhiFull5x5",
-            "phoE2x2Full5x5","phoE5x5Full5x5","phoR9Full5x5",
-            "phoPFChIso","phoPFPhoIso","phoPFChWorstIso",
-            "phoIDMVA",
-
-            "nEle",
-            "eleCalibPt","eleEta","elePhi","eleCharge",
-            
-            "nMu","muPt","muEta","muPhi","muCharge","muType","muTrkLayers"
-        ],   
+        "mc":[
+            "_run","_nVtx","_rho","_event",
+            "_nLHE","_lhePx","_lhePy","_lhePz","_lheE","_lhePID",
+            "_nMC","_mcPt","_mcE","_mcEta","_mcPhi","_mcPID","_mcMomPID","_mcGMomPID","_mcStatusFlag"],
+        "reco_pho": ["_nPho","_phoEta","_phoPhi","_phoCalibEt","_phoSCRawE",
+            "_phoESEnP1","_phoESEnP2","_phoSCEta","_phoSCEtaWidth","_phoSCPhiWidth",
+            "_phoEleVeto",
+            "_phoR9","_phoHoverE","_phoESEffSigmaRR",
+            "_phoSigmaIEtaIEtaFull5x5","_phoSigmaIEtaIPhiFull5x5",
+            "_phoE2x2Full5x5","_phoE5x5Full5x5","_phoR9Full5x5",
+            "_phoPFChIso","_phoPFPhoIso","_phoPFChWorstIso",
+            "_phoIDMVA", "_phoIsPrompt"],
+        "reco_ele": [
+            "_nEle",
+            "_eleCalibPt","_eleEta","_elePhi","_eleCharge",
+            "_nMu","_muPt","_muEta","_muPhi","_muCharge","_muType","_muTrkLayers"
+        ],
         "UL_only": [
-            "phoEcalPFClusterIso",
-            "phoHcalPFClusterIso",
-            "phoConeHoverE"
+            "_phoEcalPFClusterIso",
+            "_phoHcalPFClusterIso",
+            "_phoConeHoverE"
+        ],
+        "abandom": [
+            "_puTrue"
         ]
+
     },
   
     "MCSample" : {
-        "ZGToLLG": {
+        "SMZg": {
             "production": ["ZGToLLG"],
             "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
             "lumi": [19.52, 16.81, 41.48, 59.82],
-            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_Zg_aMCatNLO_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_Zg_aMCatNLO/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_Zg_aMCatNLO/"]
+            "pre-selection": [
+
+            "(phoCalibEt > 15) & (abs(scl_eta) < 1.442) & (abs(scl_eta) < 2.5) & (matchedToGenEle==1)"
+            ],                
+            "path": ["/data1/JYChen/photonID/miniTree/SMZg/",
+                    "/data1/JYChen/photonID/miniTree/SMZg/",
+                    "/data1/JYChen/photonID/miniTree/SMZg/job_UL17_Zg_aMCatNLO.root",
+                    "/data1/JYChen/photonID/miniTree/SMZg/job_UL18_Zg_aMCatNLO.root"]
         },        
         "DYJets": {
             "production": ["DYJets"],
             "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
             "lumi": [19.52, 16.81, 41.48, 59.82],
-            "path": ["/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_DYJetsToLL_m50_aMCatNLO_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_DYJetsToLL_m50_aMCatNLO/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_DYJetsToLL_m50_aMCatNLO/"]
+            "path": ["/data1/JYChen/photonID/miniTree/DYJets/",
+                    "/data1/JYChen/photonID/miniTree/DYJets/job_UL16_DYJetsToLL_m50_aMCatNLO_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/DYJets/",
+                    "/data1/JYChen/photonID/miniTree/DYJets/"]
         },
-        "HToZG": {
+        "HZg": {
             "production": ["ggF", "VBF", "ZH", "WminusH", "WplusH", "ttH"],
             "era": ["UL16preVFP", "UL16postVFP", "UL17", "UL18"],
             "lumi": [19.52, 16.81, 41.48, 59.82],
-            "path": [["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_preVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_preVFP/"],
+            "path": [["/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_ggF_125GeV_preVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_VBF_125GeV_preVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_ZH_125GeV_preVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_WminusH_125GeV_preVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_WplusH_125GeV_preVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16preVFP/job_UL16_HZg_ttH_125GeV_preVFP.root"],
 
-                    ["/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ggF_125GeV_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_VBF_125GeV_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ZH_125GeV_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WminusH_125GeV_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_WplusH_125GeV_postVFP/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL16_HZg_ttH_125GeV_postVFP/"],
+                    ["/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_ggF_125GeV_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_VBF_125GeV_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_ZH_125GeV_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_WminusH_125GeV_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_WplusH_125GeV_postVFP.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL16postVFP/job_UL16_HZg_ttH_125GeV_postVFP.root"],
 
-                    ["/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ggF_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_VBF_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ZH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WminusH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_WplusH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL17_HZg_ttH_125GeV/"],
+                    ["/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_ggF_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_VBF_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_ZH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_WminusH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_WplusH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL17/job_UL17_HZg_ttH_125GeV.root"],
 
-                    ["/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ggF_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_VBF_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ZH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WminusH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_WplusH_125GeV/",
-                    "/data5/ggNtuples/V10_06_30_01/job_UL18_HZg_ttH_125GeV/"]
+                    ["/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_ggF_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_VBF_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_ZH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_WminusH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_WplusH_125GeV.root",
+                    "/data1/JYChen/photonID/miniTree/HZg/UL18/job_UL18_HZg_ttH_125GeV.root"]
                 ]
         }
     }
