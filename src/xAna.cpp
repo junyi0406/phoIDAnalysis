@@ -22,15 +22,19 @@ phoID::dataReader::dataReader(std::string dir_path){
     std::vector<std::string> fileList = find_files(dir_path.c_str());
     data = new TreeReader(fileList);
 }
-
-void phoID::dataReader::LoopTree(bool isSignal){
+phoID::dataReader::~dataReader(){
+    delete out_tree;
+    delete data;
+    std::cout<< "deleted!" <<std::endl;
+}
+void phoID::dataReader::LoopTree(std::string sample){
     
     std::cout<<"start to build the tree!"<<std::endl;
     long int tev = data->GetEntriesFast();
 
     std::cout<<"There is "<< tev << " entries."<<std::endl;
     for(long int ev=0; ev<tev; ev++){
-        if (ev % (tev/1000) == 0) 
+        if (ev % (tev/3000) == 0) 
             print_progress(ev, tev);
         if (!data->HasMC()){
             FATAL("error");
@@ -38,14 +42,31 @@ void phoID::dataReader::LoopTree(bool isSignal){
         // std::cout<<"ok!"<<std::endl;
         exchange(ev, data);
         // std::cout<<"ok!"<<std::endl;
-        _phoIsPromt.clear();
-        if (isSignal)
-            _phoIsPromt = select_PromtPho_Signal();
-        else 
-            _phoIsPromt = select_PromtPho_Back();
+        _phoIsSelect.clear();
+        _phoS4.clear();
+        _phoESEoverE.clear();
+        // pre-selection
+        _phoPreSelect = preSelectPho();
+        int numPreSelect = std::count(_phoPreSelect.begin(), _phoPreSelect.end(), 1);
+        if (numPreSelect ==0)
+            continue;
+        // estimate S4 and ESEoverE
+        _phoS4       = getS4();
+        _phoESEoverE = getESEoverE();
+        if (sample == "HZg")
+            _phoIsSelect = select_HZg_pho();
+        else if(sample == "SMZg")
+            _phoIsSelect = select_SMZg_pho();
+        else if(sample == "DYJets")
+            _phoIsSelect = select_DYjet_pho();
+        else
+            std::cout<<"unknown type"<<std::endl;
         // std::cout<<"ok!"<<std::endl;
-        if( _phoIsPromt.size() != (unsigned int) 0)
-            out_tree->Fill();
+        if( _phoIsSelect.size() != (unsigned int) 0){
+            int numSelect = std::count(_phoIsSelect.begin(), _phoIsSelect.end(), 1);
+            if(numSelect != 0)
+                out_tree->Fill();
+        }
     }
     std::cout<<std::endl;
 }
@@ -54,7 +75,7 @@ void phoID::dataReader::exchange(long int ev, TreeReader* reader){
     int run                     = data->GetInt("run");
     int nVtx                    = data->GetInt("nVtx");
     // float* puTrue               = data->GetPtrFloat("puTrue");
-    int rho                     = data->GetFloat("rho");
+    float rho                   = data->GetFloat("rho");
     long long int event         = (long long int) data->GetLong64("event");
     _run   = run;
     _nVtx  = nVtx;
@@ -80,6 +101,7 @@ void phoID::dataReader::exchange(long int ev, TreeReader* reader){
     int* mcPID                     = data->GetPtrInt("mcPID");
     int* mcMomPID                  = data->GetPtrInt("mcMomPID");
     int* mcGMomPID                 = data->GetPtrInt("mcGMomPID");
+    int* mcStatus                 = data->GetPtrInt("mcStatus");
     short int* mcStatusFlag        = (short int*) data->GetPtrShort("mcStatusFlag");
     _nMC = nMC;
     convertFlt(nMC, mcPt, _mcPt);
@@ -89,6 +111,7 @@ void phoID::dataReader::exchange(long int ev, TreeReader* reader){
     convertInt(nMC,  mcPID, _mcPID);
     convertInt(nMC,  mcMomPID, _mcMomPID);
     convertInt(nMC,  mcGMomPID, _mcGMomPID);
+    convertInt(nMC,  mcStatus, _mcStatus);
     convertSInt(nMC, mcStatusFlag, _mcStatusFlag);
     int nPho                    = data->GetInt("nPho");
     float* phoEta                  = data->GetPtrFloat("phoEta");
@@ -194,6 +217,7 @@ void phoID::dataReader::InitTree(std::string treename){
     out_tree->Branch("_mcPID"                  , &_mcPID                  );
     out_tree->Branch("_mcMomPID"               , &_mcMomPID               );
     out_tree->Branch("_mcGMomPID"              , &_mcGMomPID              );
+    out_tree->Branch("_mcStatus"               , &_mcStatus              );
     out_tree->Branch("_mcStatusFlag"           , &_mcStatusFlag           );
 
     out_tree->Branch("_nPho"                   , &_nPho                   );
@@ -238,7 +262,9 @@ void phoID::dataReader::InitTree(std::string treename){
     out_tree->Branch("_muType"                 , &_muType                 );
     out_tree->Branch("_muTrkLayers"            , &_muTrkLayers            );
 
-    out_tree->Branch("_phoIsPrompt"            , &_phoIsPromt);
+    out_tree->Branch("_phoIsSelect"            , &_phoIsSelect);
+    out_tree->Branch("_phoS4"                  , &_phoS4);
+    out_tree->Branch("_phoESEoverE"            , &_phoESEoverE);
 }
 
 void phoID::dataReader::save_minitree(std::string out_path){
@@ -392,37 +418,143 @@ std::vector<std::string> phoID::dataReader::find_files(const char* patt){
     return paths;
 }
 
-
-std::vector<int> phoID::dataReader::select_PromtPho_Back(){
-    std::vector<int> idx_mat = doMatching_pho();
+std::vector<int> phoID::dataReader::preSelectPho(){
     std::vector<int> retval;
     for(int i=0; i<_nPho; i++){
-        int idx = idx_mat[i];
-        if (idx == -999){
+        // in not barrel or endcap
+        if( (std::abs(_phoSCEta[i])>1.4442 && std::abs(_phoSCEta[i])<1.566) || std::abs(_phoSCEta[i]) > 2.5){
             retval.push_back(0);
             continue;
         }
-        if (_mcPID[idx] != 22){
+        if(_phoCalibEt[i]<=15. || _phoCalibEt[i] >250.){
             retval.push_back(0);
             continue;
         }
-        if (((_mcStatusFlag[idx] >> 0) & 1) == 0){
+        if(_phoEleVeto[i] < 0.5){
             retval.push_back(0);
             continue;
         }
-        if (((_mcStatusFlag[idx] >> 1) & 1) == 0){
-            retval.push_back(0);
-            continue;
-        }
+        // if(_phoSigmaIEtaIPhiFull5x5[i]>100){
+        //     retval.push_back(0);
+        //     continue;
+        // }
         retval.push_back(1);
     }
+    if((int) retval.size() != _nPho)
+        FATAL("preselection size incorrect");
     return retval;
 }
-std::vector<int> phoID::dataReader::select_PromtPho_Signal(){
 
+std::vector<float> phoID::dataReader::getS4(){
+    std::vector<float> retval;
+    for(int i=0; i<_nPho; i++)
+        retval.push_back( _phoE2x2Full5x5[i]/_phoE5x5Full5x5[i]);
+    return retval;
+}
+std::vector<float> phoID::dataReader::getESEoverE(){
+    std::vector<float> retval;
+    for(int i=0; i<_nPho; i++){
+        bool isEndcap = (std::abs(_phoSCEta[i]) >= 1.566 && std::abs(_phoSCEta[i])<=2.5);
+        if(isEndcap == true)
+            retval.push_back( (_phoESEnP1[i] + _phoESEnP2[i] ) / _phoSCRawE[i]);
+        else
+            retval.push_back(0.);
+    }
+    return retval;
+}    
+
+std::vector<int> phoID::dataReader::select_SMZg_pho(){
     std::vector<int> idx_mat = doMatching_pho();
     std::vector<int> retval;
     for(int i=0; i<_nPho; i++){
+        if(_phoPreSelect[i] == 0){
+            retval.push_back(0);
+            continue;
+        }
+        int idx = idx_mat[i];
+        if( idx == -999 ){
+            retval.push_back(0);
+            continue;
+        }
+        // prompt photon
+        if(_mcPID[idx] == 22 
+            && ((_mcStatusFlag[idx] >> 0) & 1) == 1 
+            && ((_mcStatusFlag[idx] >> 1) & 1) == 1)
+            retval.push_back(1);
+        // FSR photon
+        else if(_mcPID[idx] == 22
+            && (std::abs(_mcMomPID[idx]) == 11 || std::abs(_mcMomPID[idx]) == 13)
+            && ((_mcStatusFlag[idx] >> 0) & 1) == 0
+            && ((_mcStatusFlag[idx] >> 1) & 1) == 1
+            && ((_mcStatusFlag[idx] >> 2) & 1) == 0){
+            TVector3 fsr_pho, ele;
+            std::vector <float> drlist;
+            // else if it is FSR photon
+            // find its mother lepton
+            for(int mc=0; mc<_nMC; mc++){
+                if(std::abs(_mcPID[mc])==11 || std::abs(_mcPID[mc])==13 || std::abs(_mcPID[mc])==15){
+                    if(((_mcStatusFlag[mc] >> 0) & 1) == 1 
+                        && ((_mcStatusFlag[mc] >> 1) & 1) == 1){
+                        ele.SetPtEtaPhi(_mcPt[idx], _mcEta[idx], _mcPhi[idx]);
+                        fsr_pho.SetPtEtaPhi(_mcPt[mc], _mcEta[mc], _mcPhi[mc]);
+                        drlist.push_back(ele.DeltaR(fsr_pho));
+                    }
+                }
+            }
+            if(drlist.size() == (unsigned int) 2)
+                if(drlist[0] >= 0.7 && drlist[1] >= 0.7)
+                    retval.push_back(1);
+                else
+                    retval.push_back(0);
+            else
+                retval.push_back(0);
+            drlist.clear();
+        }
+        else
+            retval.push_back(0);
+    }
+    if((int) retval.size() != _nPho)
+        FATAL("_nPho size incorrect");
+    return retval;
+}
+std::vector<int> phoID::dataReader::select_DYjet_pho(){
+    std::vector<int> idx_mat = doMatching_pho();
+    std::vector<int> retval;
+    for(int i=0; i<_nPho; i++){
+        if(_phoPreSelect[i] == 0){
+            retval.push_back(0);
+            continue;
+        }
+        int idx = idx_mat[i];
+        if( idx == -999 ){
+            // didn't matched
+            retval.push_back(1);
+            continue;
+        } else {
+            // if photon is matched, find jets fake pho
+            if(_mcPID[idx] == 22 
+                && (std::abs(_mcMomPID[idx]) >= 30 )
+                && ((_mcStatusFlag[idx] >> 0) & 1) == 0
+                && ((_mcStatusFlag[idx] >> 1) & 1) == 0
+                && ((_mcStatusFlag[idx] >> 2) & 1) == 0)
+                retval.push_back(1);
+            else
+                retval.push_back(0);
+        }
+    }
+    if((int) retval.size() != _nPho)
+        FATAL("_nPho size incorrect");
+    return retval;
+}
+
+std::vector<int> phoID::dataReader::select_HZg_pho(){
+    std::vector<int> idx_mat = doMatching_pho();
+    std::vector<int> retval;
+    for(int i=0; i<_nPho; i++){
+        if(_phoPreSelect[i] == 0){
+            retval.push_back(0);
+            continue;
+        }
         int idx = idx_mat[i];
         if (idx == -999){
             retval.push_back(0);
@@ -446,8 +578,11 @@ std::vector<int> phoID::dataReader::select_PromtPho_Signal(){
         }
         retval.push_back(1);
     }
+    if((int) retval.size() != _nPho)
+        FATAL("_nPho size incorrect");
     return retval;
 }
+
 
 std::vector<int> phoID::dataReader::doMatching_pho(){
     std::vector<int> retval;

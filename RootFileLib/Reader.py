@@ -19,6 +19,19 @@ def load_dfs(file_name):
         dfs = pk.load(f)
     return dfs
 
+def find_era(string):
+    if string.find("UL16") != -1:
+        if string.find("preVFP") != -1:
+            era = "UL16preVFP"
+        else:
+            era = "UL16postVFP"
+    else:
+        if string.find("UL17") != -1:
+            era = "UL17"
+        else:
+            era = "UL18"
+    return era
+
 # unused
 def read_rootfile(config_path, era, Category,  useDask = False, debug = False):
     # era must be UL16preVFP, UL16postVFP, UL17, UL18
@@ -86,7 +99,7 @@ def read_minitree(config_path, era, cate, debug = False, useDask = False):
         if isinstance(path, list):
             df_merged = []
             for i, filename in enumerate(path):
-                df_merged.append(dask.delayed(read_single_rootfile)(filename, tree_path, branches, cate+"_"+dataset["production"][i], debug))
+                df_merged.append(dask.delayed(read_single_rootfile)(filename, tree_path, branches, cate, debug))
             df_merged = dask.delayed(pd.concat)(df_merged)
         elif isinstance(path, str):
             df_merged = dask.delayed(read_single_rootfile)(path, tree_path, branches, cate, debug)
@@ -97,6 +110,7 @@ def read_minitree(config_path, era, cate, debug = False, useDask = False):
             df_merged = dask.delayed(flatten_pho)(df_merged)
         print("start computing")
         df_merged = dd.from_delayed(df_merged)
+        
         with dask.config.set(pool=ThreadPoolExecutor(3)):
             with ProgressBar():
                 result = df_merged.compute()
@@ -107,15 +121,18 @@ def read_minitree(config_path, era, cate, debug = False, useDask = False):
     print("dataframe are all set")
     return result
     
-def read_single_rootfile(filename, tree_path, branches, Category, debug, stop_entry=1000, selection=False):
+def read_single_rootfile(filename, tree_path, branches, Category, debug, stop_entry=1000):
     tree = uproot3.open(filename)[tree_path]
+    selection = "(_phoIsSelect == 1)"
     if debug:
-        df = tree.pandas.df(branches=branches,entrystop=stop_entry)
+        df = tree.pandas.df(branches=branches,entrystop=stop_entry).query(selection)
     else:
-        df = tree.pandas.df(branches=branches)
-    if isinstance(selection, str):
-        df.query(selection)
+        df = tree.pandas.df(branches=branches).query(selection)
+
     df["Category"] = Category
+    df["xsecwt"] = 1
+    df.loc[((df["_phoSCEta"]<2.5) & (df["_phoSCEta"] > 1.556)) | ((df["_phoSCEta"]>-2.5) & (df["_phoSCEta"] < -1.556)), "region"] = "endcap"
+    df.loc[((df["_phoSCEta"]<1.4442) & (df["_phoSCEta"] > -1.4442)), "region"] = "barrel"
     return df
     
 
