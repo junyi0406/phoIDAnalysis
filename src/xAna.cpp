@@ -426,11 +426,11 @@ std::vector<int> phoID::dataReader::preSelectPho(){
             retval.push_back(0);
             continue;
         }
-        if(_phoCalibEt[i]<=15. || _phoCalibEt[i] >250.){
+        if(_phoCalibEt[i]<=10. || _phoCalibEt[i] >250.){
             retval.push_back(0);
             continue;
         }
-        if(_phoEleVeto[i] < 0.5){
+        if(_phoEleVeto[i] == 0){
             retval.push_back(0);
             continue;
         }

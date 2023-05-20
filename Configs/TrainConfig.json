@@ -4,10 +4,50 @@
 {
     "version": "start the trainning",
 
-    "ptbins": [15, 20, 25, 35, 50, 65, 80, 95, 120, 150, 250],
-    "etabins": [-1.6,-1.2,-0.8,-0.5,0.0,0.5,0.8,1.2,1.6],
+    "ptbins": [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
+        32.0, 34.0, 36.0, 38.0, 40.0, 42.0, 44.0, 46.0, 48.0, 50.0, 55.0, 60.0, 
+        65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0],
+    "etabins_barrel": [-1.4442, -1.29978, -1.15536, -1.01094, -0.86652, -0.7221, -0.57768, -0.43326, -0.2884, -0.14442, 0
+        , 0.14442, 0.28884, 0.43326, 0.57768, 0.7221,  0.86652, 1.01094, 1.15536, 1.29978, 1.4442 ],
+    "etabins_endcap": [-2.5, -2.4066, -2.3132, -2.2198, -2.1264, -2.033, -1.9396, -1.8462, -1.7528, -1.6594, -1.566
+        , 1.566, 1.6594, 1.7528, 1.8462, 1.9396, 2.033,  2.1264, 2.2198, 2.3132, 2.4066, 2.5],
     "ptwtvar": "_phoCalibEt",
-    "etawtvar": "_phoEta",
-    "WhichClassToReweightTo": 1
+    "etawtvar": "_phoSCEta",
+    "WhichClassToReweightTo": 1,
 
+    "sig_back":[
+        ["DataFrame/HZg/HZg_UL16preVFP.pk" , "DataFrame/DYJets/DYJets_UL16preVFP.pk"],
+        ["DataFrame/HZg/HZg_UL16postVFP.pk", "DataFrame/DYJets/DYJets_UL16postVFP.pk"],
+        ["DataFrame/HZg/HZg_UL17.pk"       , "DataFrame/DYJets/DYJets_UL17.pk"],
+        ["DataFrame/HZg/HZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18.pk"],
+        ["DataFrame/SMZg/SMZg_UL16preVFP.pk" , "DataFrame/DYJets/DYJets_UL16preVFP.pk"],
+        ["DataFrame/SMZg/SMZg_UL16postVFP.pk", "DataFrame/DYJets/DYJets_UL16postVFP.pk"],
+        ["DataFrame/SMZg/SMZg_UL17.pk"       , "DataFrame/DYJets/DYJets_UL17.pk"],
+        ["DataFrame/SMZg/SMZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18.pk"]
+       
+    ],
+    "MVAs": {
+        "XGBoost":{
+            "MVAtype": "XGB",
+            "useGPU": false,
+            "multiCore": true,
+            "Scalar": "MinMaxScaler",
+            "XGBGridSearch":{"min_child_weight": [5]},
+            "features":{
+                "barrel": [
+                    "_phoS4", "_phoSCRawE", "_phoR9Full5x5", "_phoSCEta",
+                    "_phoSCEtaWidth", "_phoSCPhiWidth",
+                    "_phoSigmaIEtaIEtaFull5x5", "_phoSigmaIEtaIPhiFull5x5",
+                    "_rho", "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso"
+                ],
+                "endcap":[
+                    "_phoS4", "_phoSCRawE", "_phoR9Full5x5", "_phoSCEta",
+                    "_phoSCEtaWidth", "_phoSCPhiWidth", 
+                    "_phoSigmaIEtaIEtaFull5x5", "_phoSigmaIEtaIPhiFull5x5",
+                    "_rho", "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso",
+                    "_phoESoverE", "_phoESEffSigmaRR"
+                ]
+            }
+        }
+    }
 }
