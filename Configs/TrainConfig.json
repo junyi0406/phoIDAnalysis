@@ -1,6 +1,4 @@
 
-
-
 {
     "version": "start the trainning",
 
@@ -23,31 +21,117 @@
         ["DataFrame/SMZg/SMZg_UL16preVFP.pk" , "DataFrame/DYJets/DYJets_UL16preVFP.pk"],
         ["DataFrame/SMZg/SMZg_UL16postVFP.pk", "DataFrame/DYJets/DYJets_UL16postVFP.pk"],
         ["DataFrame/SMZg/SMZg_UL17.pk"       , "DataFrame/DYJets/DYJets_UL17.pk"],
-        ["DataFrame/SMZg/SMZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18.pk"]
+        ["DataFrame/SMZg/SMZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18.pk"],
+
+        ["DataFrame/HZg/HZg_UL16preVFP.pk" , "DataFrame/DYJets/DYJets_UL16preVFP_noPtMat.pk"],
+        ["DataFrame/HZg/HZg_UL16postVFP.pk", "DataFrame/DYJets/DYJets_UL16postVFP_noPtMat.pk"],
+        ["DataFrame/HZg/HZg_UL17.pk"       , "DataFrame/DYJets/DYJets_UL17_noPtMat.pk"],
+        ["DataFrame/HZg/HZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18_noPtMat.pk"],
+        ["DataFrame/SMZg/SMZg_UL16preVFP.pk" , "DataFrame/DYJets/DYJets_UL16preVFP_noPtMat.pk"],
+        ["DataFrame/SMZg/SMZg_UL16postVFP.pk", "DataFrame/DYJets/DYJets_UL16postVFP_noPtMat.pk"],
+        ["DataFrame/SMZg/SMZg_UL17.pk"       , "DataFrame/DYJets/DYJets_UL17_noPtMat.pk"],
+        ["DataFrame/SMZg/SMZg_UL18.pk"       , "DataFrame/DYJets/DYJets_UL18_noPtMat.pk"],
+
+        ["DataFrame/HZg/HZg_UL18_noPtMat.pk"       , "DataFrame/DYJets/DYJets_UL18_noPtMat.pk"],
+        ["DataFrame/SMZg/SMZg_UL18_noPtMat.pk"       , "DataFrame/DYJets/DYJets_UL18_noPtMat.pk"]
        
     ],
     "MVAs": {
         "XGBoost":{
             "MVAtype": "XGB",
-            "useGPU": false,
+            "useGPU": true,
+            "useScalar": true,
             "multiCore": true,
+            "tunOptParams": true,
             "Scalar": "MinMaxScaler",
-            "XGBGridSearch":{"min_child_weight": [5]},
+        
+            "XGBGridSearch":{
+                "n_estimators": [1000],
+                "early_stopping_rounds": [50],
+                "min_child_weight": [5]
+            },
+            "params_space":{
+                "grow_policy": ["choice", ["depthwise", "lossguide"]],
+                "learning_rate": ["uniform", 0.05, 0.8],
+                "max_depth": ["choice", [4, 5, 6, 7, 8]],
+                "max_delta_step": ["choice", [4, 5, 6, 7, 8]],
+                "min_child_weight": ["uniform", 10, 100],
+                "subsample": ["uniform", 0.1, 1],
+                "min_split_loss": ["uniform", 0, 2],
+                "colsample_bytree": ["uniform", 0.1, 1]
+
+            },
+            "OverlayWP":{
+                "barrel": [0.269955, 0.614943],
+                "endcap": [0.161956, 0.528929]
+            },
+            "OverlayWPColors": ["black","purple"],
             "features":{
                 "barrel": [
-                    "_phoS4", "_phoSCRawE", "_phoR9Full5x5", "_phoSCEta",
+                    "_phoS4", "_phoR9Full5x5", 
                     "_phoSCEtaWidth", "_phoSCPhiWidth",
                     "_phoSigmaIEtaIEtaFull5x5", "_phoSigmaIEtaIPhiFull5x5",
-                    "_rho", "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso"
+                    "_phoSCRawE", 
+                    "_phoSCEta",
+                    "_rho", 
+                    "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso",
+                    "_phoEcalPFClusterIso",
+                    "_phoHcalPFClusterIso",
+                    "_phoConeHoverE"
                 ],
                 "endcap":[
-                    "_phoS4", "_phoSCRawE", "_phoR9Full5x5", "_phoSCEta",
+                    "_phoS4", "_phoR9Full5x5",
                     "_phoSCEtaWidth", "_phoSCPhiWidth", 
                     "_phoSigmaIEtaIEtaFull5x5", "_phoSigmaIEtaIPhiFull5x5",
-                    "_rho", "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso",
-                    "_phoESoverE", "_phoESEffSigmaRR"
+                    "_phoSCRawE",  "_phoSCEta",
+                    "_rho",
+                    "_phoPFPhoIso", "_phoPFChIso", "_phoPFChWorstIso",
+                    "_phoESEoverE", "_phoESEffSigmaRR",
+                    "_phoEcalPFClusterIso",
+                    "_phoHcalPFClusterIso",
+                    "_phoConeHoverE"
                 ]
+            },
+            "features_range":{
+                "barrel":{
+                    "_rho": [0 ,60, false], 
+                    "_phoSCEta": [-2.8, 2.8, false],
+                    "_phoSCRawE": [0, 250, false], 
+                    "_phoS4": [0, 1.2, true], 
+                    "_phoR9Full5x5": [0, 1.5, false], 
+                    "_phoSCEtaWidth": [0, 0.05, true], 
+                    "_phoSCPhiWidth": [-0.02, 0.3, true],
+                    "_phoSigmaIEtaIEtaFull5x5": [0, 0.04, false], 
+                    "_phoSigmaIEtaIPhiFull5x5": [-0.0005, 0.0005, false],
+                    "_phoPFPhoIso": [0, 200, true], 
+                    "_phoPFChIso": [0, 200, true], 
+                    "_phoPFChWorstIso": [0, 200, true],
+                    "_phoEcalPFClusterIso": [0, 25, true],
+                    "_phoHcalPFClusterIso": [0, 30, true],
+                    "_phoConeHoverE": [0, 0.6, true]
+                },
+                "endcap":{
+                    "_rho": [0, 60, false],
+                    "_phoSCEta": [-2.8, 2.8, false],
+                    "_phoSCRawE": [0, 250, false], 
+                    "_phoS4": [0, 1.2, true], 
+                    "_phoR9Full5x5": [0, 1.5, false],
+                    "_phoSCEtaWidth": [0, 0.05, true], 
+                    "_phoSCPhiWidth": [-0.02, 0.2, true], 
+                    "_phoSigmaIEtaIEtaFull5x5": [0, 0.08, false],
+                    "_phoSigmaIEtaIPhiFull5x5": [-0.001, 0.001, false],
+                    "_phoPFPhoIso": [0, 200, true], 
+                    "_phoPFChIso": [0, 200, true], 
+                    "_phoPFChWorstIso": [0, 200, true],
+                    "_phoEcalPFClusterIso": [0, 25, true],
+                    "_phoHcalPFClusterIso": [0, 30, true],
+                    "_phoConeHoverE": [0, 0.6, true],
+                    "_phoESEoverE": [0, 0.4, false], 
+                    "_phoESEffSigmaRR": [0, 15, false]
+                }
+                
             }
         }
     }
 }
+

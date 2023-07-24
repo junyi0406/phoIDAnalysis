@@ -36,36 +36,70 @@ def plot_corre(df, sig_back_era, Classes=[''],MVA={}, OutDir=""):
                 fig.text(0.3, 0.9, "work-in-progress", fontsize=10)
                 fig.savefig(OutDir+"/"+ sig_back_era + "/" + C +"/"+region+"_"+k+".png", dpi=900)
                 
-                
-def plot_importance(cv, features, region="", OutDir=""):
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(1, 1, figsize=(12/1.3, 12/2))
-    plt.subplots_adjust(left=0.2)
-    fig.text(0.2, 0.9, "CMS", fontsize=18, fontweight="bold")
-    fig.text(0.27, 0.9, "work-in-progress", fontsize=14)
-    ax.tick_params(axis = "x", direction="in", left=False)
-    ax.tick_params(axis = "y", direction="in", left=False)
-    bars = ax.barh(features[region], cv.best_estimator_.feature_importances_, color=[(0.9, 0.4, 0.1)])
-    for bars in ax.containers:
-        ax.bar_label(bars, label_type="edge", fmt='%.2f', color="k")
-    ax.set_xlabel("Xgboost Feature Importance")
-    plt.xlim(0, 0.5)
-    fig.savefig(OutDir+region+"_Importance_.png")
+  
 
-                
-
-def MakeFeaturePlots(df_final,features,feature_bins,Set="Train",MVA="XGB_1",OutputDirName='Output',cat='Category',label=[""],weight="NewWt",log=False):
+def MakeFeaturePlots(df_final, features, feature_range, region, sig_back_era, OutputDirName='Output'):
+    import os
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(1, len(features), figsize=(len(features)*5, 5))
-    print("Making "+Set+" dataset feature plots")
+    from matplotlib.ticker import AutoLocator, AutoMinorLocator
+    print("Making "+region+" region feature plots")
+
+    sig, back, era = sig_back_era.split("_")[:3]
+    try:
+        os.mkdir(OutputDirName+sig_back_era+"/")
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(OutputDirName+sig_back_era+"/"+region+"/")
+    except FileExistsError:
+        pass
+    colors = ["b", "darkorange"]
     for m in range(len(features)):
-        #print(f'Feature {m} is {features[m]}')
-        for i,group_df in df_final[df_final['Dataset'] == Set].groupby(cat):
-            group_df[features[m]].hist(histtype='step', bins=feature_bins[m], alpha=1,label=label[i], ax=axes[m], density=False, ls='-', weights =group_df[weight]/group_df[weight].sum(),linewidth=1)
-            #df_new = pd.concat([group_df, df_new],ignore_index=True, sort=False)                                                                                            
-        axes[m].legend(loc='upper right')
-        axes[m].set_xlabel(features[m])
-        if log:
-            axes[m].set_yscale("log")
-        axes[m].set_title(features[m]+" ("+Set+" Dataset)")
-    plt.savefig(OutputDirName+"/"+MVA+"/"+MVA+"_"+"featureplots_"+Set+".pdf")
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+        for i, cate in enumerate([sig, back]):
+            df_weight = df_final.loc[(df_final["Category"]==cate)
+                        & (df_final["region"] ==region)
+                        & (df_final["Dataset"]=="Test"), "NewWt"]
+            df_final.loc[(df_final["Category"]==cate)
+                        & (df_final["region"] ==region)
+                        & (df_final["Dataset"]=="Test"), features[m]].hist(histtype='step', 
+                                                                    bins=40,
+                                                                    range=(feature_range[region][features[m]][0], feature_range[region][features[m]][1]), 
+                                                                    alpha=1,
+                                                                    ax=ax, 
+                                                                    density=True,
+                                                                    ls='-', 
+                                                                    color=colors[i],
+                                                                    weights =df_weight/df_weight.sum(),
+                                                                    linewidth=1,
+                                                                    grid=False,
+                                                                    label=cate+": test")
+            df_weight = df_final.loc[(df_final["Category"]==cate)
+                        & (df_final["region"] ==region)
+                        & (df_final["Dataset"]=="Train"), "NewWt"]
+            df_final.loc[(df_final["Category"]==cate)
+                        & (df_final["region"] ==region)
+                        & (df_final["Dataset"]=="Train"), features[m]].hist(histtype='bar', 
+                                                                    bins=40,
+                                                                    range=(feature_range[region][features[m]][0], feature_range[region][features[m]][1]),
+                                                                    color=colors[i],
+                                                                    alpha=0.4,
+                                                                    ax=ax, 
+                                                                    density=True,
+                                                                    weights =df_weight/df_weight.sum(),
+                                                                    grid=False,
+                                                                    label=cate+": train")    
+        fig.text(0.13, 0.9, "CMS", fontsize=14, fontweight="bold")
+        fig.text(0.23, 0.9, "work-in-progress", fontsize=10)
+        ax.tick_params(axis = "x", direction="in", top=True, right=True)
+        ax.tick_params(axis = "y", direction="in", top=True, right=True) 
+        plt.margins(1)                       
+        ax.legend(loc='upper right', ncol=2)
+        ax.set_xlabel(features[m])
+        ax.set_ylabel("a.u.")
+        plt.xlim(feature_range[region][features[m]][0], feature_range[region][features[m]][1])
+        if feature_range[region][features[m]][2]:
+            ax.set_yscale("log")
+        # ax.set_title(features[m]+" ("+Set+" Dataset)")
+        plt.savefig(OutputDirName+sig_back_era+"/"+region+"/"+features[m]+".png", dpi=600)
+        print(OutputDirName+sig_back_era+"/"+region+"/"+features[m]+".png has been saved!")

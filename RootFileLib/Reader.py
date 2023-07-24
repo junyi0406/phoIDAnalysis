@@ -31,66 +31,19 @@ def find_era(string):
         else:
             era = "UL18"
     return era
-
-# unused
-def read_rootfile(config_path, era, Category,  useDask = False, debug = False):
-    # era must be UL16preVFP, UL16postVFP, UL17, UL18
-    # Category can be ZGToLLG DYJets HToZG
-    import dask.dataframe as dd
-    from dask.diagnostics import ProgressBar
-    with open(config_path, "r") as config:
-        config = json.load(config)
-    tree_path = config["tree_path"]
-    debug     = config["debug"]
-    branches  = config["branches"]["common"] + config["branches"]["UL_only"]
-    flatten   = config["flatten"]
-    dataset   = config["MCSample"][Category]
-    eras      = dataset["era"]
-    
-    dfs = []
-    
-    path = dataset["path"][eras.index(era)]
-
-    if useDask:
-        if isinstance(path, list): # for the HZg samples
-            for i, dir in enumerate(path):
-                files = filter(lambda name : name[-5:] == ".root", os.listdir(dir))
-                data = [dask.delayed(read_single_rootfile)(dir+file, tree_path, branches, Category+"_"+dataset["production"][i], debug, flatten) for file in files]
-                df_merged = dask.delayed(pd.concat)(data)
-                dfs.append(df_merged)
-        elif isinstance(path, str): # for others
-            files = filter(lambda name : name[-5:] == ".root", os.listdir(path))
-            data = [dask.delayed(read_single_rootfile)(path+file, tree_path, branches, Category, debug, flatten) for file in files]
-            df_merged = dask.delayed(pd.concat)(data)
-            dfs.append(df_merged)
-        else:
-            print("wtf?")
-    else:
-        print("This function hasn't been finished.")
-        exit()
-    dfs = dask.delayed(pd.concat)(dfs)
-    if useDask: 
-        print("start computing")
-        dfs = dd.from_delayed(dfs)
-        # dfs = dfs.compute(scheduler="processes")
-        with dask.config.set(pool=ThreadPoolExecutor(4)):
-            with ProgressBar():
-                result = dfs.compute()
-    print("dataframe are all set")
-    return result
         
 
 def read_minitree(config_path, era, cate, debug = False, useDask = False):
     import dask.dataframe as dd
     from dask.diagnostics import ProgressBar
-    from RootFileLib.FlattenPho import flatten_pho
+    
     with open(config_path, "r") as config:
         config = json.load(config)
     tree_path = config["tree_path"]
     debug     = config["debug"]
     branches  = config["branches"]["reco_pho"] + config["branches"]["UL_only"]
-    flatten   = config["flatten"]
     dataset   = config["MCSample"][cate]
+    selections   = config["MCSample"][cate]["pre-selection"]
     eras      = dataset["era"]
     path      = dataset["path"][eras.index(era)]
 
@@ -99,15 +52,18 @@ def read_minitree(config_path, era, cate, debug = False, useDask = False):
         if isinstance(path, list):
             df_merged = []
             for i, filename in enumerate(path):
-                df_merged.append(dask.delayed(read_single_rootfile)(filename, tree_path, branches, cate, debug))
+                filename = filename[:-5]+"_noPtMat"+filename[-5:]
+                print("loading: ", filename)
+                df_merged.append(dask.delayed(read_single_rootfile)(filename, tree_path, branches, selections, cate, debug))
             df_merged = dask.delayed(pd.concat)(df_merged)
         elif isinstance(path, str):
-            df_merged = dask.delayed(read_single_rootfile)(path, tree_path, branches, cate, debug)
+            path = path[:-5]+"_noPtMat"+path[-5:]
+            print("loading: ", path)
+            df_merged = dask.delayed(read_single_rootfile)(path, tree_path, branches, selections, cate, debug)
         else:
             print("unsupport data path type")
             exit()
-        if flatten:
-            df_merged = dask.delayed(flatten_pho)(df_merged)
+
         print("start computing")
         df_merged = dd.from_delayed(df_merged)
         
@@ -121,16 +77,18 @@ def read_minitree(config_path, era, cate, debug = False, useDask = False):
     print("dataframe are all set")
     return result
     
-def read_single_rootfile(filename, tree_path, branches, Category, debug, stop_entry=1000):
+def read_single_rootfile(filename, tree_path, branches, selections, Category, debug, stop_entry=1000):
     tree = uproot3.open(filename)[tree_path]
-    selection = "(_phoIsSelect == 1)"
+    
     if debug:
-        df = tree.pandas.df(branches=branches,entrystop=stop_entry).query(selection)
+        for selection in selections:
+            df = tree.pandas.df(branches=branches,entrystop=stop_entry).query(selection)
     else:
-        df = tree.pandas.df(branches=branches).query(selection)
+        for selection in selections:
+            df = tree.pandas.df(branches=branches).query(selection)
 
     df["Category"] = Category
-    df["xsecwt"] = 1
+    df["xsecwt"] = df["_phoXSWt"]
     df.loc[((df["_phoSCEta"]<2.5) & (df["_phoSCEta"] > 1.556)) | ((df["_phoSCEta"]>-2.5) & (df["_phoSCEta"] < -1.556)), "region"] = "endcap"
     df.loc[((df["_phoSCEta"]<1.4442) & (df["_phoSCEta"] > -1.4442)), "region"] = "barrel"
     return df

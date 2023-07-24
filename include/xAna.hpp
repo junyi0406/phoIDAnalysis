@@ -7,6 +7,8 @@
 #include <TTree.h>
 #include <vector>
 #include "./untuplizer.h"
+#include "./SetupWt.hpp"
+#include "./TMVAScore.hpp"
 #ifndef FATAL
 #define FATAL(msg) do { fprintf(stderr, "FATAL: %s\n", msg); gSystem->Exit(1); } while (0)
 #endif
@@ -17,13 +19,14 @@ namespace phoID
 
         TTree* out_tree;
         TreeReader* data;
-    
+        phoID::XSPool* Scale;
+        phoID::TMVAObj* Scorer;
         // branches
-        int _run, _nLHE, _nMC, _nPho, _nEle, _nMu, _nVtx;
-        float _rho;
+        int _run, _nLHE, _nMC, _nPho, _nEle, _nMu, _nVtx, _isZtoeeuu;
+        float _rho, _phoXSWt;
         long long int _event;
         std::vector<short int> _mcStatusFlag;
-        std::vector<int> _lhePID,_mcPID, _mcMomPID, _mcGMomPID,
+        std::vector<int> _lhePID,_mcPID, _mcMomPID, _mcGMomPID, _mcStatus,
          _phoEleVeto, _eleCharge, _muCharge, _muType, _muTrkLayers;
         std::vector<float> _lhePx, _lhePy, _lhePz,
          _lheE, _mcPt, _mcE, _mcEta, _mcPhi;
@@ -33,15 +36,21 @@ namespace phoID
          _phoSigmaIEtaIEtaFull5x5,_phoSigmaIEtaIPhiFull5x5,_phoE2x2Full5x5,
          _phoE5x5Full5x5,_phoR9Full5x5, _phoPFChIso, _phoPFPhoIso,
          _phoPFChWorstIso,_phoIDMVA ,_phoEcalPFClusterIso,_phoHcalPFClusterIso,
-         _phoConeHoverE,_phoCalibEt,
+         _phoConeHoverE, _phoCalibEt, _phoTMVA,
          _eleCalibPt, _eleEta, _elePhi,
-         _muPt, _muEta, _muPhi;        
-        std::vector<int> _phoIsPromt;
+         _muPt, _muEta, _muPhi;    
+
+
+        std::vector<int> _phoIsSelect, _phoPreSelect;
+        std::vector<float> _phoS4, _phoESEoverE;
 
         public:
             dataReader(std::string dir_path);
-            void LoopTree(bool isSignal);
+            ~dataReader();
+            // void LoopTree(std::string sample);
+            void LoopTree(std::string era, std::string sample, std::string mode);
             void InitTree(std::string treename);
+            void InitTMVA(phoID::TMVAObj* obj);
             void save_minitree(std::string out_path);
             
         protected:
@@ -53,8 +62,15 @@ namespace phoID
             void exchange(long int ev, TreeReader* reader);
             std::vector<int> doMatching_pho();
             
-            std::vector<int> select_PromtPho_Back();
-            std::vector<int> select_PromtPho_Signal();
+            int tag_Ztoeeuu();
+            std::vector<int> select_HZg_pho();
+            std::vector<int> select_SMZg_pho();
+            std::vector<int> select_DYjet_pho();
+            std::vector<int>   preSelectPho();
+            std::vector<float> getS4();
+            std::vector<float> getESEoverE();
+            std::vector<float> getTMVA();
+
     };
 
 }

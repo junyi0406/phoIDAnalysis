@@ -35,3 +35,22 @@ def check_test_train_dataset(df, filename):
     axes.set_title("Number of samples")
     plt.savefig(filename)
     
+def split_test_train_validate(df, region, cates, train_ratio, test_ratio, validation_ratio):
+    from sklearn.model_selection import train_test_split
+    
+    index = df.index
+
+    for cate in cates:
+        condition =  (df["Category"] == cate) & (df["region"] == region)
+        Indices = index[condition].values.tolist()
+        # train is now 75% of the entire data set
+        train_indices, remain_indices  = train_test_split(Indices,        test_size = (validation_ratio+test_ratio)/(train_ratio + test_ratio + validation_ratio))
+        test_indices, validate_indices = train_test_split(remain_indices, test_size = validation_ratio/(validation_ratio+test_ratio))
+        df.loc[train_indices,'Dataset'] = "Train"
+        df.loc[test_indices,'Dataset'] = "Test"
+        df.loc[validate_indices,'Dataset'] = "Validate"
+
+        df.loc[train_indices,'TrainDataset'] = 1
+        df.loc[test_indices,'TrainDataset'] = 0
+        df.loc[validate_indices,'TrainDataset'] = 2
+    return df
