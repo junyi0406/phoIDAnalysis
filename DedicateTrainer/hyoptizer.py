@@ -57,7 +57,9 @@ def tunning_best_parameters(dataset, params_space, num_eval, OutDir):
         X_test = sc.transform(X_test)
         eval_s = [(X_train, Y_train),(X_test,Y_test)]
         xgb_model = xgb.XGBClassifier(objective="binary:logistic", tree_method = "gpu_hist")
-        cv = sklearn.model_selection.GridSearchCV(xgb_model, params,  early_stopping_rounds = 20, n_estimators=1500,
+        params["n_estimators"] = [1500]
+        params["early_stopping_rounds"] = [20]
+        cv = sklearn.model_selection.GridSearchCV(xgb_model, params,  # early_stopping_rounds = 20, n_estimators=1500,
                                 scoring='neg_log_loss',cv=3,verbose=1,n_jobs=multiprocessing.cpu_count())
         search = cv.fit(X_train, Y_train,  sample_weight=Wt_train, verbose=0, eval_set=eval_s)
         return {"loss": np.average(search.best_score_), "status": hyperopt.STATUS_OK}
@@ -69,5 +71,6 @@ def tunning_best_parameters(dataset, params_space, num_eval, OutDir):
         trials=trials
     )
     best_hyperparams = hyperopt.space_eval(params_space, best)
+    pk.dump(trials, open(OutDir+"_best_params_trials.pk", "wb"))
     pk.dump(best_hyperparams, open(OutDir+"_best_params.pk", "wb"))
     return best_hyperparams

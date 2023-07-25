@@ -5,7 +5,7 @@
 def plot_importance(cv, features, region="", OutDir=""):
     import pandas as pd
     import matplotlib.pyplot as plt
-    df = pd.DataFrame(zip(features[region], cv.best_estimator_.feature_importances_), columns=["features", "importance"])
+    df = pd.DataFrame(zip(features[region], cv.feature_importances_), columns=["features", "importance"])
     df = df.sort_values(by="importance", ascending=True)
     ax = df.plot.barh(x="features", y="importance", figsize=(12/1.3, 12/2), color=[(0.9, 0.4, 0.1)], legend=False)
     fig = plt.gcf()
@@ -20,16 +20,18 @@ def plot_importance(cv, features, region="", OutDir=""):
     ax.set_xlabel("Xgboost Feature Importance")
     plt.xlim(0, 0.7)
     fig.savefig(OutDir+region+"_Importance_.png")
+    plt.clf()
     
 def plot_error(cv, region, OutDir):
     import matplotlib.pyplot as plt
     colors = ["b", "darkorange"]
-    results = cv.best_estimator_.evals_result()
+    results = cv.evals_result()
+    # results = cv.best_estimator_.evals_result()
     epochs = len(results["validation_0"]["logloss"])
     x_axis = range(0, epochs)
     fig, ax = plt.subplots(figsize=(5,5))
     ax.plot(x_axis, results['validation_0']['logloss'], label='Train', color=colors[0], alpha=0.7)
-    ax.plot(x_axis, results['validation_1']['logloss'], label='Test', color=colors[1], alpha=0.7)
+    ax.plot(x_axis, results['validation_1']['logloss'], label='Validation', color=colors[1], alpha=0.7)
     ax.legend()
     fig.subplots_adjust(left=0.2)
     ax.set_ylabel('logloss')
@@ -51,10 +53,10 @@ def plot_predicted_score(df, region, pred_var, OutDir):
         # print(f"{j} is {cate}")
         df_weight = df.loc[(df["isSignal"]==j)
             & (df["region"] == region)
-            & (df["Dataset"]== "Test"), "NewWt"]
+            & (df["Dataset"]== "Validate"), "NewWt"]
         df.loc[(df["isSignal"]==j)
             & (df["region"] ==region)
-            & (df["Dataset"]=="Test"), pred_var].hist(histtype='step', 
+            & (df["Dataset"]=="Validate"), pred_var].hist(histtype='step', 
                 bins = 40,
                 range=(-0.1, 1.2), 
                 alpha=1,
@@ -65,7 +67,7 @@ def plot_predicted_score(df, region, pred_var, OutDir):
                 weights =df_weight/df_weight.sum(),
                 linewidth=1,
                 grid=False,
-                label=cate+": test")
+                label=cate+": validation")
         df_weight = df.loc[(df["isSignal"]==j)
             & (df["region"] == region)
             & (df["Dataset"]== "Train"), "NewWt"]
@@ -83,42 +85,42 @@ def plot_predicted_score(df, region, pred_var, OutDir):
                 label=cate+": train")
     
     # split TMVA into train/2 and test/2
-    index = df.index
-    test_indices  = index[(df["isSignal"]==0) & (df["region"] ==region) & (df["Dataset"]== "Test")].values.tolist()
-    train_indices = index[(df["isSignal"]==0) & (df["region"] ==region) & (df["Dataset"]== "Train")].values.tolist()
-    sub_test  = train_test_split(test_indices, test_size=0.5, shuffle=True)
-    sub_train = train_test_split(train_indices, test_size=0.5, shuffle=True)
-    df_weight = df.loc[sub_test[0]+sub_train[0], "NewWt"]
-    df.loc[sub_test[0]+sub_train[0], "_phoTMVA"].hist(histtype='step', 
-            bins = 40,
-            range=(-0.1, 1.2), 
-            alpha= 0.9,
-            ax=ax, 
-            density=True,
-            linewidth=1.3,
-            color=colors_TMVA[0],
-            weights =df_weight/df_weight.sum(),
-            grid=False,
-            label="Background: EGM UL ID")
+    # index = df.index
+    # test_indices  = index[(df["isSignal"]==0) & (df["region"] ==region) & (df["Dataset"]== "Test")].values.tolist()
+    # train_indices = index[(df["isSignal"]==0) & (df["region"] ==region) & (df["Dataset"]== "Train")].values.tolist()
+    # sub_test  = train_test_split(test_indices, test_size=0.5, shuffle=True)
+    # sub_train = train_test_split(train_indices, test_size=0.5, shuffle=True)
+    # df_weight = df.loc[sub_test[0]+sub_train[0], "NewWt"]
+    # df.loc[sub_test[0]+sub_train[0], "_phoTMVA"].hist(histtype='step', 
+    #         bins = 40,
+    #         range=(-0.1, 1.2), 
+    #         alpha= 0.9,
+    #         ax=ax, 
+    #         density=True,
+    #         linewidth=1.3,
+    #         color=colors_TMVA[0],
+    #         weights =df_weight/df_weight.sum(),
+    #         grid=False,
+    #         label="Background: EGM UL ID")
     
-    test_indices  = index[(df["isSignal"]==1) & (df["region"] ==region) & (df["Dataset"]== "Test")].values.tolist()
-    train_indices = index[(df["isSignal"]==1) & (df["region"] ==region) & (df["Dataset"]== "Train")].values.tolist()
-    sub_test  = train_test_split(test_indices, test_size=0.5, shuffle=True)
-    sub_train = train_test_split(train_indices, test_size=0.5, shuffle=True)
-    df_weight = df.loc[sub_test[0]+sub_train[0], "xsecwt"]
-    df.loc[sub_test[0]+sub_train[0], "_phoTMVA"].hist(histtype='step', 
-            bins = 40,
-            range=(-0.1, 1.2), 
-            alpha= 0.7,
-            ax=ax, 
-            density=True,
-            linewidth=1.3,
-            color=colors_TMVA[1],
-            weights =df_weight/df_weight.sum(),
-            grid=False,
-            label="Signal: EGM UL ID")
+    # test_indices  = index[(df["isSignal"]==1) & (df["region"] ==region) & (df["Dataset"]== "Test")].values.tolist()
+    # train_indices = index[(df["isSignal"]==1) & (df["region"] ==region) & (df["Dataset"]== "Train")].values.tolist()
+    # sub_test  = train_test_split(test_indices, test_size=0.5, shuffle=True)
+    # sub_train = train_test_split(train_indices, test_size=0.5, shuffle=True)
+    # df_weight = df.loc[sub_test[0]+sub_train[0], "xsecwt"]
+    # df.loc[sub_test[0]+sub_train[0], "_phoTMVA"].hist(histtype='step', 
+    #         bins = 40,
+    #         range=(-0.1, 1.2), 
+    #         alpha= 0.7,
+    #         ax=ax, 
+    #         density=True,
+    #         linewidth=1.3,
+    #         color=colors_TMVA[1],
+    #         weights =df_weight/df_weight.sum(),
+    #         grid=False,
+    #         label="Signal: EGM UL ID")
             
-    ax.legend(fontsize=6, ncol=3)
+    ax.legend(fontsize=6, ncol=2)
     ax.tick_params(axis = "x", direction="in", top=True, bottom = True)
     ax.tick_params(axis = "y", direction="in", left=True, right=True)
     ax.set_xlabel("XGB_pred")
@@ -133,6 +135,7 @@ def plot_predicted_score(df, region, pred_var, OutDir):
         fig.text(0.84, 0.9, "EE", fontsize=14)    
 
     fig.savefig(OutDir+region+"_BDTval.png", dpi=800)
+    plt.clf()
     
 def plot_single_roc_point(df, region, XGBconf, var_score,
                           ax=None , marker='o', 
@@ -187,9 +190,9 @@ def plot_final_ROC_curve(df, region, XGBconf, OutDir):
         # for MVAi in XGBconf.MVAs:
     # plot_single_roc_point(df, region, XGBconf, "_phoTMVA", axes, label="TMVA: ")
     
-    
-    plot_roc_curve(df.query('TrainDataset==0'),"XGB_pred", tpr_threshold=0.0, ax=axes, color="b", linestyle='--', label='XGBoost Testing',cat="isSignal",Wt='NewWt')
-    plot_roc_curve(df.query('TrainDataset==1'),"XGB_pred", tpr_threshold=0.0, ax=axes, color="b", linestyle='-', label='XGBoost Training',cat="isSignal",Wt='NewWt')
+    # plot_roc_curve(df.query('TrainDataset==2'),"_phoTMVA", tpr_threshold=0.0, ax=axes, color="p", linestyle='--', label='EGM UL: Validate', cat="isSignal", Wt='NewWt')
+    plot_roc_curve(df.query('TrainDataset==2'),"XGB_pred", tpr_threshold=0.0, ax=axes, color="b", linestyle='--', label='XGBoost: Validate',cat="isSignal",Wt='NewWt')
+    plot_roc_curve(df.query('TrainDataset==1'),"XGB_pred", tpr_threshold=0.0, ax=axes, color="b", linestyle='-', label='XGBoost: Train',cat="isSignal",Wt='NewWt')
     axes.set_xlabel("Signal efficiency  (%)")
     axes.set_ylabel("Background efficiency (%)")
 
@@ -199,9 +202,9 @@ def plot_final_ROC_curve(df, region, XGBconf, OutDir):
     axes.tick_params(axis = "y", direction="in", left=True, right=True)
     fig.text(0.12, 0.9, "CMS", fontsize=16, fontweight="bold")
     fig.text(0.22, 0.9, "work-in-progress", fontsize=12)    
- 
+
     fig.savefig(OutDir+region+"_ROCFinal.png")
-    fig.savefig(OutDir+region+"_ROCFinal.png")
+    plt.clf()
     
 def plot_best_params(best_params, OutDir):
     
